@@ -215,6 +215,8 @@ class PointerNetwork(nn.Module):
 
         self.dp = nn.Dropout(self.dropout)
 
+        self.sigmoid = nn.Sigmoid()
+
     def forward(
         self,
         encoder_hidden,
@@ -225,9 +227,13 @@ class PointerNetwork(nn.Module):
         catenated = torch.cat((encoder_hidden, decoder_end_state), 1)
 
         # [batch_size, output_size (2 binary)]
-        Y = self.fc(self.dp(F.relu(catenated)))
+        # Y = self.fc(self.dp(F.relu(catenated)))
+        Y = self.fc(self.dp(catenated))
 
-        return Y
+        # result = F.log_softmax(Y, dim=1)
+        result = self.sigmoid(Y)
+
+        return result
 
 
 

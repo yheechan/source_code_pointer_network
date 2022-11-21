@@ -25,13 +25,13 @@ def graphModel(dataloader, model, writer, device):
 
 def saveModel(fn, project_nm, model):
 
-    os.makedirs('../model/'+fn+'/')
+    # os.makedirs('../model/'+fn+'/')
 
     model.cpu()
-    torch.save(model, '../model/'+fn+'/'+project_nm+'.pt')
+    torch.save(model, '../model/'+project_nm+'.pt')
 
 
 def getModel(fn, project_nm):
-    model = torch.load('../model/'+fn+'/'+project_nm+'.pt')
+    model = torch.load('../model/'+project_nm+'.pt')
 
     return model

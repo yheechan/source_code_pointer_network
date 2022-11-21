@@ -12,11 +12,15 @@ def initialize_model(
     dropout=0.3,
     max_length=66,
     input_size=215,
-    device=None
+    device=None,
+    loss_fn_name='BCE'
 ):
 
 
-    loss_fn = nn.CrossEntropyLoss()
+    if loss_fn_name == 'BCE':
+        loss_fn = nn.BCELoss()
+    else:
+        loss_fn = nn.CrossEntropyLoss()
 
 
     model = sm.MySeq2Seq(

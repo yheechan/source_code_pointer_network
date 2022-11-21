@@ -22,6 +22,7 @@ def train(
     loss_fn=None,
     optimizer=None,
     device=None,
+    threshold=None
 ):
 
 
@@ -68,38 +69,26 @@ def train(
 
             # [label_len (128 labels), batch_size, output_size (2 binary)]
             results = model(prefix, postfix, label)
-            
-            
-            # overall prediction
-            # [128, batch_size]
-            # overall_preds = results.argmax(2).permute(1, 0)
 
-            # overall_preds = overall_preds.permute(1, 0, 2)
-            # print('\n--overall predictions permute--')
 
             loss = 0
             all_loss = 0
 
             # [batch_size, 64] --> [batch_size, 128]
-            total_labels = torch.cat((label_prefix, label_postfix), 1)
-
-            # overall_cmp = (overall_preds == total_labels)
-            # print('\n--overall_cmp--')
-            # print(overall_cmp.shape)
-            # print(overall_cmp[0])
-
-            # false_rate = torch.any(overall_cmp, 0)
-            # print('\n--false_rate--')
-            # print(false_rate.shape)
+            total_labels = torch.cat((label_prefix, label_postfix), 1).permute(1, 0).unsqueeze(2).float()
 
             # add loss for each token predicted
             for i in range(results.shape[0]):
-                loss = loss_fn(results[i], total_labels[:,i])
+                loss = loss_fn(results[i], total_labels[i])
                 all_loss += loss
 
                 # calculate accuracy
-                preds = results[i].argmax(1).flatten()
-                acc = (preds == total_labels[:,i]).cpu().numpy().mean() * 100
+                preds = results[i]
+
+                binary_preds = (preds>threshold).float()*1
+
+
+                acc = (binary_preds == total_labels[i]).cpu().numpy().mean() * 100
                 tot_train_acc.append(acc)
 
                 # calculate loss
@@ -129,7 +118,8 @@ def train(
                 val_dataloader=val_dataloader,
                 model=model,
                 loss_fn=loss_fn,
-                device=device
+                device=device,
+                threshold=threshold
             )
 
 
@@ -164,7 +154,8 @@ def evaluate(
     val_dataloader=None,
     model=None,
     loss_fn=None,
-    device=None
+    device=None,
+    threshold=None
 ):
 
     """After the completion of each training epoch, measure the model's
@@ -198,22 +189,25 @@ def evaluate(
         label_prefix, label_postfix, case = tuple(t.to(device) for t in batch)
 
         # [batch_size, 64] --> [batch_size, 128]
-        total_labels = torch.cat((label_prefix, label_postfix), 1)
+        total_labels = torch.cat((label_prefix, label_postfix), 1).permute(1, 0).unsqueeze(2).float()
 
         # Compute logits
         with torch.no_grad():
-
 
             results = model(prefix, postfix, label)
 
             # add loss for each token predicted
             for i in range(results.shape[0]):
-                loss = loss_fn(results[i], total_labels[:,i])
+                loss = loss_fn(results[i], total_labels[i])
                 all_loss += loss
 
                 # calculate accuracy
-                preds = results[i].argmax(1).flatten()
-                acc = (preds == total_labels[:,i]).cpu().numpy().mean() * 100
+                # preds = results[i].argmax(1).flatten()
+                preds = results[i]
+
+                binary_preds = (preds>threshold).float()*1
+
+                acc = (binary_preds == total_labels[i].flatten()).cpu().numpy().mean() * 100
                 val_accuracy.append(acc)
 
                 # keep loss

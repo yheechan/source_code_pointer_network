@@ -1,0 +1,15 @@
+boringssl: 		183917
+c-ares: 		9802
+freetype2: 		9019
+guetzli: 		10996
+harfbuzz: 		59388
+libpng: 		19184
+libssh: 		35347
+libxml2: 		225285
+pcre: 		28063
+proj4: 		47202
+r32: 		0
+sqlite3: 		83410
+vorbis: 		19701
+woff2: 		14490
+wpantund: 		14992
