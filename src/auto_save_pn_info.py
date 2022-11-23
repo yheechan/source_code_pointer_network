@@ -42,7 +42,7 @@ else:
 
 
 proj_list =[
-    'c-ares',
+    'boringssl', 'c-ares',
     'freetype2', 'guetzli',
     'harfbuzz', 'libpng',
     'libssh', 'libxml2',
@@ -57,14 +57,6 @@ proj_list =[
 
 
 target_project = 0
-
-
-
-
-
-
-
-
 
 
 
@@ -131,7 +123,7 @@ for i in range(len(proj_list)):
     # ====================
 
     overall_title = 'look2prediction'
-    title = overall_title + '_' + proj_list[target_project] + '_tryBCE1'
+    title = proj_list[target_project]
     epochs = 20 
 
     # max_len, source_code_tokens, token_choices = data.getInfo()

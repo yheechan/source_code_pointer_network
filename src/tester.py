@@ -26,11 +26,11 @@ def writeJson(
     json_data = {
         'prefix': prefix,
         'postfix': postfix,
-        'label': label,
-        'original_prefix_label': label_prefix_binary,
-        'original_postfix_label': label_postfix_binary,
-        'predicted_prefix_likelihood': prefix_likelihood,
-        'predicted_postfix_likelihood': postfix_likelihood
+        'label-type': label,
+        'label-prefix': [label_prefix_binary],
+        'label-postfix': [label_postfix_binary],
+        'prefix-likelihood': [prefix_likelihood],
+        'postfix-likelihood': [postfix_likelihood]
     }
 
     with open('../predicted/'+proj_nm, 'a') as f:

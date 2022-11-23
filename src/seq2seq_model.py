@@ -208,12 +208,18 @@ class PointerNetwork(nn.Module):
         self.output_size = output_size
         self.dropout = dropout
 
-        self.fc = nn.Linear(
+        self.fc1 = nn.Linear(
             self.hidden_size*2*2,
+            self.hidden_size*2
+        )
+
+        self.fc2 = nn.Linear(
+            self.hidden_size*2,
             self.output_size
         )
 
-        self.dp = nn.Dropout(self.dropout)
+        self.dp1 = nn.Dropout(self.dropout)
+        self.dp2 = nn.Dropout(self.dropout)
 
         self.sigmoid = nn.Sigmoid()
 
@@ -228,9 +234,11 @@ class PointerNetwork(nn.Module):
 
         # [batch_size, output_size (2 binary)]
         # Y = self.fc(self.dp(F.relu(catenated)))
-        Y = self.fc(self.dp(catenated))
+        Y = self.fc1(self.dp1(catenated))
+        Y = self.fc2(self.dp2(Y))
 
-        # result = F.log_softmax(Y, dim=1)
+        # Y = F.log_softmax(Y, dim=1)
+
         result = self.sigmoid(Y)
 
         return result
@@ -407,4 +415,4 @@ class MySeq2Seq(nn.Module):
             outputs[i] = result
 
 
-        return outputs 
+        return outputs

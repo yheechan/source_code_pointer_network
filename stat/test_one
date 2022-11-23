@@ -1,2 +1,0 @@
-boringssl_test_one_tryOVF	 |	loss: 0.0650055016861777	 |	acc: 97.81562926912568	 |	 time: 272.27 min
-boringssl_test_one_tryBCE	 |	loss: 0.07031834502097875	 |	acc: 96.30934427937157	 |	 time: 275.256 min
