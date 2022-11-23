@@ -204,4 +204,4 @@ def test(
 
     print('saved precision and recall results to file!')
     
-    return fin_loss, fin_acc
+    return fin_loss, fin_acc, fin_acc_TT
