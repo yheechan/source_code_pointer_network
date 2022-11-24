@@ -122,7 +122,7 @@ for i in range(len(proj_list)):
     # set parameters here
     # ====================
 
-    overall_title = 'look2prediction'
+    overall_title = 'fc3'
     title = proj_list[target_project]
     epochs = 20 
 
@@ -173,7 +173,7 @@ for i in range(len(proj_list)):
 
 
 
-    model = mu.getModel(overall_title, 'look2prediction_boringssl_tryBCE1')
+    model = mu.getModel(overall_title, 'fc3_boringssl')
     print(model)
 
 

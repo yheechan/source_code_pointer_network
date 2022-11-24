@@ -215,11 +215,17 @@ class PointerNetwork(nn.Module):
 
         self.fc2 = nn.Linear(
             self.hidden_size*2,
+            self.hidden_size
+        )
+
+        self.fc3 = nn.Linear(
+            self.hidden_size,
             self.output_size
         )
 
         self.dp1 = nn.Dropout(self.dropout)
         self.dp2 = nn.Dropout(self.dropout)
+        self.dp3 = nn.Dropout(self.dropout)
 
         self.sigmoid = nn.Sigmoid()
 
@@ -236,6 +242,7 @@ class PointerNetwork(nn.Module):
         # Y = self.fc(self.dp(F.relu(catenated)))
         Y = self.fc1(self.dp1(catenated))
         Y = self.fc2(self.dp2(Y))
+        Y = self.fc3(self.dp3(Y))
 
         # Y = F.log_softmax(Y, dim=1)
 
