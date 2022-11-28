@@ -79,6 +79,7 @@ def test(
         prefix, postfix, label,\
         label_prefix, label_postfix, case = tuple(t.to(device) for t in batch)
 
+        # usage to save likelihoods of prefix and postfix as a whole
         # [batch_size, 64] --> [token len (128), batch_size, 1 (1 or 0)]
         total_labels = torch.cat((label_prefix, label_postfix), 1).permute(1, 0).unsqueeze(2).float()
 

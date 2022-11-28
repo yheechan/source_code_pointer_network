@@ -1,18 +1,16 @@
 import torch
-import torch.nn.functional as F
-import torch.utils.data as tud
-from tqdm.auto import tqdm
-import copy
 
-
-def predictNoBeam(
+def predict(
     prefix,
     postfix,
-    label,
+    label=[2],
     model=None,
     device=None
 ):
 
+    # set model to predict mode
+    model.to(device)
+    model.eval()
 
     # ********************* INSTANTIATE MODEL INPUT DATA *********************
 
@@ -26,21 +24,36 @@ def predictNoBeam(
     label = label.to(device)
 
 
+    # usage to save likelihoods of prefix and postfix as a whole
+    # [batch_size, 64] --> [token len (128), batch_size, 1 (1 or 0)]
+    total_labels = torch.zeros((prefix.shape[1]*2, prefix.shape[0], 1)).to(device)
+
+
 
 
     # ********************* PREDICT TOKEN SEQUENCE *********************
 
-    # [label_len (128 labels), batch_size, output_size (2 binary)]
+    # [label_len (128 labels), batch_size (1000), single likelihood (BCE -1)]
     results = model(prefix, postfix, label)
 
 
-    tok_list = []
-    for i in range(results.shape[0]):
 
-        # the token with highest probability
-        preds = results[i].argmax(1).flatten()
+    # ********** SPLIT PREDICTED LIKELIHOOD **********
 
-        # append each token to list
-        tok_list.append(preds.item())
-    
-    return tok_list
+    # torch.set_printoptions(sci_mode=False, precision=20)
+    # [prefix prediction, postfix prediction] in likelihood
+    prefix_likelihood, postfix_likelihood = torch.split(results, 64)
+
+    # [batch_size (1000), token_len (64)]
+    prefix_likelihood = prefix_likelihood.permute(1, 0, 2).squeeze()
+    postfix_likelihood = postfix_likelihood.permute(1, 0, 2).squeeze()
+
+
+
+    # change torch tensor to like
+    prefix_likelihood_list = prefix_likelihood.tolist()
+    postfix_likelihood_list = postfix_likelihood.tolist()
+
+
+
+    return prefix_likelihood_list, postfix_likelihood_list
