@@ -5,13 +5,13 @@ import torch.nn as nn
 def initialize_model(
     learning_rate=0.001,
     weight_decay=0.0,
-    embed_dim=128,
+    embed_dim=100,
     hidden_size=200,
-    n_layers=2,
-    output_size=215,
+    n_layers=1,
+    output_size=1,
     dropout=0.3,
-    max_length=66,
-    input_size=215,
+    max_length=64,
+    input_size=154,
     device=None,
     loss_fn_name='BCE'
 ):

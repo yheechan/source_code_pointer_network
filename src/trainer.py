@@ -59,8 +59,12 @@ def train(
 
 
             # Load batch to GPU
-            prefix, postfix, label,\
-            label_prefix, label_postfix, case = tuple(t.to(device) for t in batch)
+            prefix, prefix_ids,\
+            postfix, postfix_ids,\
+            label,\
+            label_prefix,\
+            label_postfix,\
+            case = tuple(t.to(device) for t in batch)
 
 
             # Zero out any previously calculated gradients
@@ -68,7 +72,7 @@ def train(
             optimizer.zero_grad()
 
             # [label_len (128 labels), batch_size, output_size (2 binary)]
-            results = model(prefix, postfix, label)
+            results = model(prefix, prefix_ids, postfix, postfix_ids, label)
 
 
             loss = 0
@@ -185,8 +189,12 @@ def evaluate(
         all_loss = 0
 
         # Load batch to GPU
-        prefix, postfix, label,\
-        label_prefix, label_postfix, case = tuple(t.to(device) for t in batch)
+        prefix, prefix_ids,\
+        postfix, postfix_ids,\
+        label,\
+        label_prefix,\
+        label_postfix,\
+        case = tuple(t.to(device) for t in batch)
 
         # [batch_size, 64] --> [batch_size, 128]
         total_labels = torch.cat((label_prefix, label_postfix), 1).permute(1, 0).unsqueeze(2).float()
@@ -194,7 +202,7 @@ def evaluate(
         # Compute logits
         with torch.no_grad():
 
-            results = model(prefix, postfix, label)
+            results = model(prefix, prefix_ids, postfix, postfix_ids, label)
 
             # add loss for each token predicted
             for i in range(results.shape[0]):

@@ -209,7 +209,7 @@ class PointerNetwork(nn.Module):
         self.dropout = dropout
 
         self.fc1 = nn.Linear(
-            self.hidden_size*2*2,
+            self.hidden_size*2*2+8,
             self.hidden_size*2
         )
 
@@ -232,11 +232,17 @@ class PointerNetwork(nn.Module):
     def forward(
         self,
         encoder_hidden,
-        decoder_end_state
+        decoder_end_state,
+        ids
     ):
         # size --> [batch_size, hidden_size*2]
-        # output size --> [batch_size, hidden_size*2*2]
-        catenated = torch.cat((encoder_hidden, decoder_end_state), 1)
+        # output size --> [batch_size, hidden_size*2*2+8]
+
+        # contex_info = [batch_size, hidden_size*2 + 8]
+        context_info = torch.cat((encoder_hidden, ids), 1)
+
+        # catenated --> [batch_size, hidden_size*2*2 + 8]
+        catenated = torch.cat((context_info, decoder_end_state), 1)
 
         # [batch_size, output_size (2 binary)]
         # Y = self.fc(self.dp(F.relu(catenated)))
@@ -312,10 +318,13 @@ class MySeq2Seq(nn.Module):
         )
 
 
-    def forward(self, prefix, postfix, label):
+    def forward(self, prefix, prefix_ids, postfix, postfix_ids, label):
 
         # prefix & postfix : [batch_size, token_len (64)]
         # label : [batch_size, token (1)]
+
+        # prefix_ids, postfix_ids
+        # [batch, 64, 8]
 
         batch_size = prefix.shape[0]
         label_len = prefix.shape[1] + postfix.shape[1]
@@ -412,11 +421,15 @@ class MySeq2Seq(nn.Module):
         # size of decoder end state
 
 
+        # [batch_size, 128, 8]
+        ids = torch.cat((prefix_ids, postfix_ids), 1)
+
+
         for i in range(encoder_hiddens.shape[1]):
             encoder_hidden = encoder_hiddens[:, i, :]
 
             # [batch_size, output_size (2 binary)]
-            result = self.pointer(encoder_hidden, decoder_end_hidden)
+            result = self.pointer(encoder_hidden, decoder_end_hidden, ids[:, i, :])
 
             # from 128 --> [batch_size, output_size (2 binary)]
             outputs[i] = result

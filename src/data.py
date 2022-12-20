@@ -3,12 +3,29 @@ import numpy as np
 # from collections import deque
 # import csv
 
-def getTrainData(proj_list, target_project):
+def get8ByteList(ids):
+    total_byte_list = []
+
+    for word in ids:
+        single_byte_list = []
+
+        for char in word:
+            if len(single_byte_list) == 8: break
+            single_byte_list.append(ord(char))
+        
+        single_byte_list += [0] * (8-len(single_byte_list))
+        total_byte_list.append(np.array(single_byte_list))
+
+    return np.array(total_byte_list)
+
+def getTrainData(proj_list, target_project, version):
 
     total_file = 'total'
 
     prefix = []
+    prefix_ids = []
     postfix = []
+    postfix_ids = []
     label_type = []
     label_prefix = []
     label_postfix = []
@@ -17,13 +34,12 @@ def getTrainData(proj_list, target_project):
     for proj in proj_list:
         
         # if proj == target_project or proj == total_file: continue
-
         # don't remove target file for training web model
         if proj == total_file: continue
 
         print('Getting data for \"' + target_project + '\" from \"' + proj + '\"')
 
-        with open('../data/' + proj, 'r') as f:
+        with open('../data/' + version + '/' + proj, 'r') as f:
             lines = f.readlines()
         
         for line in lines:
@@ -31,7 +47,10 @@ def getTrainData(proj_list, target_project):
             json_data = json.loads(line.rstrip())
 
             prefix.append(json_data['prefix'])
+            prefix_ids.append(get8ByteList(json_data['prefix-ids']))
+
             postfix.append(json_data['postfix'])
+            postfix_ids.append(get8ByteList(json_data['postfix-ids']))
 
             label_type.append(json_data['label-type'])
 
@@ -44,7 +63,8 @@ def getTrainData(proj_list, target_project):
         # break for reducing test time for quick development
         break
     
-    return np.array(prefix), np.array(postfix),\
+    return np.array(prefix), np.array(prefix_ids),\
+            np.array(postfix), np.array(postfix_ids),\
             np.array(label_type), np.array(label_prefix),\
             np.array(label_postfix), np.array(case)
 

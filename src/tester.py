@@ -10,22 +10,30 @@ def tensor2list(tensor):
     return list
 
 def writeJson(
-    prefix, postfix, label,
+    prefix, prefix_ids,
+    postfix, postfix_ids,
+    label,
     label_prefix_binary, label_postfix_binary,
     prefix_likelihood, postfix_likelihood,
     proj_nm
 ):
-    prefix, postfix, label,\
+    prefix, prefix_ids,\
+    postfix, postfix_ids,\
+    label,\
     label_prefix_binary, label_postfix_binary,\
     prefix_likelihood, postfix_likelihood = tuple(data.tolist() for data in [
-        prefix, postfix, label,
+        prefix, prefix_ids,
+        postfix, postfix_ids,
+        label,
         label_prefix_binary, label_postfix_binary,
         prefix_likelihood, postfix_likelihood
     ])
 
     json_data = {
         'prefix': prefix,
+        'prefix-ids': prefix_ids,
         'postfix': postfix,
+        'postfix-ids': postfix_ids,
         'label-type': label,
         'label-prefix': [label_prefix_binary],
         'label-postfix': [label_postfix_binary],
@@ -76,7 +84,9 @@ def test(
         all_loss = 0
 
         # Load batch to GPU
-        prefix, postfix, label,\
+        prefix, prefix_ids,\
+        postfix, postfix_ids,\
+        label,\
         label_prefix, label_postfix, case = tuple(t.to(device) for t in batch)
 
         # usage to save likelihoods of prefix and postfix as a whole
@@ -87,8 +97,7 @@ def test(
         with torch.no_grad():
 
             # [token len (128), batch_size (1000), single likelihood (BCE - 1)]
-            results = model(prefix, postfix, label)
-
+            results = model(prefix, prefix_ids, postfix, postfix_ids, label)
 
 
 
@@ -175,7 +184,9 @@ def test(
 
 
                 writeJson(
-                    prefix[i], postfix[i], label[i],
+                    prefix[i], prefix_ids[i],
+                    postfix[i], postfix_ids[i],
+                    label[i],
                     label_prefix[i], label_postfix[i],
                     prefix_likelihood[i], postfix_likelihood[i],
                     proj_nm
