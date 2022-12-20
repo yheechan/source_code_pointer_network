@@ -61,7 +61,7 @@ def getTrainData(proj_list, target_project, version):
     
         # ------------------------------------------------------
         # break for reducing test time for quick development
-        break
+        # break
     
     return np.array(prefix), np.array(prefix_ids),\
             np.array(postfix), np.array(postfix_ids),\
